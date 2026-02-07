@@ -152,7 +152,7 @@ if arquivo:
         # Se a sobra for maior que a margem e o valor lido for zero (ou muito baixo, erro da IA)
         if sobra_matematica > margem_seguranca and v_desp < 10.0:
              # Força o cálculo estimado
-             v_desp = sobra_matematica * 35.00 # Tarifa estimada R$ 35/kW
+             v_desp = sobra_matematica * 9.00 # Tarifa estimada R$ 9/kW
 
         total_perda = v_desp + v_ultra + v_reat
         anual_perda = total_perda * 12
@@ -206,4 +206,5 @@ if arquivo:
             st.success("✅ **Eficiência Máxima!** Fatura otimizada, sem multas ou desperdícios.")
 
             st.balloons()
+
 
