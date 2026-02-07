@@ -195,7 +195,7 @@ if arquivo:
                 if not nome_lead: st.warning("⚠️ Preencha seu nome.")
                 elif not anexar_check: st.warning("⚠️ Confirme que enviará o PDF.")
                 else:
-                    mensagem_zap = f"Olá Eyener! Sou *{nome_lead}*, da *{empresa_lead}*.\n\nO auditor automático de faturas da Eyener identificou um desperdício de *R$ {total_perda:,.2f}* na minha fatura.\n\n*Estou enviando o PDF da fatura em anexo agora* para análise."
+                    mensagem_zap = f"Olá Eyener! Sou *{nome_lead}*, da *{empresa_lead}*.\n\nO auditor automático de faturas da Eyener identificou um prejuízo de *R$ {total_perda:,.2f}* na minha fatura.\n\n*Estou enviando o PDF da fatura em anexo agora* para análise."
                     mensagem_encoded = urllib.parse.quote(mensagem_zap)
                     link_zap = f"https://wa.me/{SEU_WHATSAPP}?text={mensagem_encoded}"
                     
@@ -206,3 +206,4 @@ if arquivo:
             st.success("✅ **Eficiência Máxima!** Fatura otimizada, sem multas ou desperdícios.")
 
             st.balloons()
+
