@@ -34,28 +34,23 @@ def extrair_json_do_texto(texto_sujo):
 def analisar_fatura_api(arquivo_bytes):
     try:
         pdf_base64 = base64.b64encode(arquivo_bytes).decode('utf-8')
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{NOME_MODELO}:generateContent?key={MINHA_CHAVE}"
+        
+        # Tenta pegar a chave dos Segredos (Nuvem)
+        chave_final = st.secrets.get("GEMINI_KEY", MINHA_CHAVE)
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{NOME_MODELO}:generateContent?key={chave_final}"
         headers = {'Content-Type': 'application/json'}
         
-        # --- PROMPT REFINADO (MODO XERIFE) ---
         prompt = """
         Atue como auditor sênior da Eyener. Analise a fatura de energia (Grupo A).
         
         REGRAS ESTRITAS PARA EXTRAÇÃO FINANCEIRA (R$):
-        
         1. Demanda Contratada e Medida: Extraia os valores em kW.
+        2. "Diferença de Demanda" ou "Demanda Complementar": Valor R$ total.
+        3. "Ultrapassagem": Valor R$ total.
+        4. "Energia Reativa": Só considere se for maior que R$ 10,00.
         
-        2. "Diferença de Demanda" ou "Demanda Complementar":
-           - Procure o valor R$ total cobrado por este item específico.
-        
-        3. "Ultrapassagem":
-           - Procure o valor R$ total da multa de demanda excedente.
-        
-        4. "Energia Reativa" ou "Reativo Excedente":
-           - ATENÇÃO: Só retorne o valor se for uma MULTA/COBRANÇA EXCEDENTE explícita maior que R$ 10,00. 
-           - Ignore pequenos valores de impostos (PIS/COFINS) sobre o reativo. Se não houver multa clara, retorne 0.0.
-        
-        Se não encontrar um valor, retorne 0.0.
+        Se não encontrar, retorne 0.0.
         
         SAÍDA JSON OBRIGATÓRIA:
         {
@@ -68,13 +63,28 @@ def analisar_fatura_api(arquivo_bytes):
         }
         """
         data = {"contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": "application/pdf", "data": pdf_base64}}]}]}
+        
         response = requests.post(url, headers=headers, json=data)
+        
         if response.status_code == 200:
             txt = response.json()['candidates'][0]['content']['parts'][0]['text']
-            return json.loads(extrair_json_do_texto(txt))
+            # Tenta limpar e converter
+            json_limpo = extrair_json_do_texto(txt)
+            try:
+                return json.loads(json_limpo)
+            except json.JSONDecodeError:
+                # SE A IA FALHAR AO GERAR O JSON, MOSTRA O ERRO NA TELA
+                st.error("⚠️ A IA leu o arquivo, mas gerou uma resposta inválida.")
+                with st.expander("Ver Resposta Bruta da IA (Debug)"):
+                    st.code(txt) # Mostra o que ela mandou de errado
+                return None
+        else:
+            st.error(f"❌ Erro de Conexão com Google: {response.status_code}")
+            st.write(response.text)
+            return None
+    except Exception as e:
+        st.error(f"❌ Erro Interno do Sistema: {e}")
         return None
-    except: return None
-
 # --- DESIGN DA PÁGINA ---
 
 col_logo, col_titulo = st.columns([2, 3]) # Ajustei a proporção para a logo maior
@@ -194,4 +204,5 @@ if arquivo:
             
         else:
             st.success("✅ **Eficiência Máxima!** Fatura otimizada, sem multas ou desperdícios.")
+
             st.balloons()
