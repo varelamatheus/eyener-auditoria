@@ -206,5 +206,3 @@ if arquivo:
             st.success("✅ **Eficiência Máxima!** Fatura otimizada, sem multas ou desperdícios.")
 
             st.balloons()
-
-
