@@ -1,0 +1,14 @@
+[theme]
+# A cor principal (botões, sliders, destaques). Laranja Eyener.
+primaryColor = "#FF6C00"
+
+# A cor do fundo da página inteira. Azul Marinho Profundo.
+backgroundColor = "#2B488E"
+
+# A cor do fundo das caixas laterais e inputs. Um azul um pouco mais claro.
+secondaryBackgroundColor = "#193D5A"
+
+# A cor do texto. Branco para dar contraste no fundo azul.
+textColor = "#FFFFFF"
+
+font = "sans serif"
